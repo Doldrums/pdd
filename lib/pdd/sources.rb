@@ -38,7 +38,7 @@ module PDD
       files = Dir.glob(
         File.join(@dir, '**/*'), File::FNM_DOTMATCH
       ).reject { |f| File.directory?(f) }
-      included = 0
+      included = 0, excluded = 0
       @include.each do |ptn|
         Dir.glob(File.join(@dir, ptn), File::FNM_DOTMATCH) do |f|
           files.keep_if { |i| i != f }
@@ -46,7 +46,6 @@ module PDD
         end
       end
       PDD.log.info "#{files.size} file(s) found, #{included} files included"
-      excluded = 0
       @exclude.each do |ptn|
         Dir.glob(File.join(@dir, ptn), File::FNM_DOTMATCH) do |f|
           files.delete_if { |i| i == f }
