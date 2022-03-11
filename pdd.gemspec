@@ -43,7 +43,7 @@ Gem::Specification.new do |s|
   s.executables = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
   s.test_files = s.files.grep(%r{^(test|spec|features)/})
   s.rdoc_options = ['--charset=UTF-8']
-  s.extra_rdoc_files = ['README.md', 'LICENSE.txt']
+  s.extra_rdoc_files = %w[README.md LICENSE.txt]
   s.add_runtime_dependency 'nokogiri', '~> 1.10'
   s.add_runtime_dependency 'rainbow', '~> 3.0'
   s.add_runtime_dependency 'slop', '~> 4.6'
@@ -57,4 +57,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rubocop', '0.52.1'
   s.add_development_dependency 'rubocop-rspec', '1.15.1'
   s.add_development_dependency 'xcop', '0.5.8'
+  s.add_development_dependency 'ruby-prof', '1.4.3'
 end

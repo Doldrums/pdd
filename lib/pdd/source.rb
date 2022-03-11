@@ -24,6 +24,7 @@ require 'json'
 require 'shellwords'
 require_relative '../pdd'
 require_relative '../pdd/puzzle'
+require 'open3'
 
 module PDD
   # Source.
@@ -45,7 +46,7 @@ module PDD
         begin
           check_rules(line)
           ["\x40todo", 'TODO:?'].each do |pfx|
-            %r{(.*(?:^|\s))#{pfx}\s+#([\w\-\.:/]+)\s+(.+)}.match(line) do |m|
+            %r{(.*(?:^|\s))#{pfx}\s+#([\w\-\.:/]+)\s+(.+)}.match?(line) do |m|
               puzzles << puzzle(lines.drop(idx + 1), m, idx)
             end
           end
@@ -76,22 +77,22 @@ see https://github.com/yegor256/pdd#how-to-format"
     end
 
     def check_rules(line)
-      /[^\s]\x40todo/.match(line) do |_|
+      if Open3.capture3('egrep "[^\s]\x40todo"', stdin_data: line) == true
         raise Error, get_no_leading_space_error("\x40todo")
       end
-      /\x40todo(?!\s+#)/.match(line) do |_|
+      if Open3.capture3('egrep "\x40todo(?!\s+#)"', stdin_data: line) == true
         raise Error, get_no_puzzle_marker_error("\x40todo")
       end
-      /\x40todo\s+#\s/.match(line) do |_|
+      if Open3.capture3('egrep "\x40todo\s+#\s"', stdin_data: line) == true
         raise Error, get_space_after_hash_error("\x40todo")
       end
-      /[^\s]TODO:?/.match(line) do |_|
+      if Open3.capture3('egrep "[^\s]TODO:?"', stdin_data: line) == true
         raise Error, get_no_leading_space_error('TODO')
       end
-      /TODO(?!:?\s+#)/.match(line) do |_|
+      if Open3.capture3('egrep "TODO(?!:?\s+#)"', stdin_data: line) == true
         raise Error, get_no_puzzle_marker_error('TODO')
       end
-      /TODO:?\s+#\s/.match(line) do |_|
+      if Open3.capture3('egrep "TODO:?\s+#\s"', stdin_data: line) == true
         raise Error, get_space_after_hash_error('TODO')
       end
     end
@@ -115,7 +116,7 @@ see https://github.com/yegor256/pdd#how-to-format"
     # Parse a marker.
     def marker(text)
       re = %r{([\w\-\.]+)(?::(\d+)(?:(m|h)[a-z]*)?)?(?:/([A-Z]+))?}
-      match = re.match(text)
+      match = re.match?(text)
       if match.nil?
         raise "Invalid puzzle marker \"#{text}\", most probably formatted \
 against the rules explained here: https://github.com/yegor256/pdd#how-to-format"
